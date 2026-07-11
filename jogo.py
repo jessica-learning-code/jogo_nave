@@ -5,8 +5,9 @@ pygame.init()
 
 tamanho_tela = (800,600)
 tela = pygame.display.set_mode(tamanho_tela)
+relogio = pygame.time.Clock()
 
-BRANCO = (0,0,0)
+BRANCO = (255,255,255)
 
 qtdbombas = 50
 bombas = []
@@ -17,13 +18,14 @@ imagem_bombas = pygame.image.load("Piskel - Bomb.png")
 for i in range(qtdbombas):
     posicao_x = random.randint(0,750)
     posicao_y = 0
-    velocidade_bombas = random.randint(5,10)
-    tamanho_bombas = random.randint(10,20)
-    imagem_bombas = pygame.transform.scale(imagem_bombas,(tamanho_bombas,tamanho_bombas))
-    bombas.append([posicao_x,posicao_y,velocidade_bombas,imagem_bombas])
+    velocidade_bombas = random.randint(1,2)
+    tamanho_bombas = random.randint(50,60)
+    imagem_redimencionada = pygame.transform.scale(imagem_bombas,(tamanho_bombas,tamanho_bombas))
+    bombas.append([posicao_x,posicao_y,velocidade_bombas,imagem_redimencionada])
 
 
 fim_jogo = False
+
 
 while not fim_jogo:
     for evento in pygame.event.get():
@@ -32,6 +34,16 @@ while not fim_jogo:
 
     tela.fill(BRANCO)
 
-    tela.blit(bombas[3],(bombas[0],bombas[1]))
+    for bomba in bombas:
+        bomba[1] += bomba[2]
+        
+
+        if bomba[1] > 600:
+            bomba[1] = -20
+            bomba[0] = random.randint(0,750)
+    tela.blit(bomba[3],(bomba[0],bomba[1]))
+
+    pygame.display.flip()
+    relogio.tick(60)
 
 pygame.quit()
