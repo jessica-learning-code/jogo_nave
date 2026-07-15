@@ -43,7 +43,7 @@ fim_jogo = False
 
 while not fim_jogo:
 
-    tela.fill(imagem_fundo,(0,0))
+    tela.blit(imagem_fundo_redimensionada,(0,0))
 
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -80,7 +80,7 @@ while not fim_jogo:
         posicao_x = random.randint(0,750)#posições aleatórias entre 0 e 750 na horizontal
         posicao_y = -50#começar da posição -50 na vertical 
         velocidade_bomba = random.randint(2,3)
-        tamanho_bomba = 90
+        tamanho_bomba = 100
         imagem_bomba_redimensionada  = pygame.transform.scale(imagem_bombas,(tamanho_bomba,tamanho_bomba))
         bombas.append([posicao_x, posicao_y, velocidade_bomba, imagem_bomba_redimensionada])
 
