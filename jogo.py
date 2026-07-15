@@ -20,6 +20,9 @@ intervalo = 1000# cria uma bomba a cada 1 segundo
 imagem_bombas = pygame.image.load("Piskel - Bomb.png")
 imagem_nave = pygame.image.load("Piskel - Nave.png").convert_alpha()
 
+imagem_fundo = pygame.image.load("galaxia.jpg").convert_alpha()
+imagem_fundo_redimensionada = pygame.transform.scale(imagem_fundo,(altura,largura))
+
 tamanho_nave = 100
 imagem_nave_redimensionada = pygame.transform.scale(imagem_nave,(tamanho_nave,tamanho_nave))
 
@@ -40,7 +43,7 @@ fim_jogo = False
 
 while not fim_jogo:
 
-    tela.fill(CINZA)
+    tela.fill(imagem_fundo,(0,0))
 
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
