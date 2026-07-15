@@ -1,70 +1,96 @@
 import pygame
 import random
+from dataclasses import dataclass
 
 pygame.init()
 
-tamanho_tela = (800,600)
-tela = pygame.display.set_mode(tamanho_tela)
+altura = 800
+largura = 600
+tela = pygame.display.set_mode((altura,largura))
 
-relogio = pygame.time.Clock()
+relogio = pygame.time.Clock()#numero de fps
 
-BRANCO = (255,255,255)
+CINZA = (70,86,94)
 
 bombas = []
 
-ultimo_spaw = pygame.time.get_ticks()
-intervalo = 2000# cria uma bomba a cada 300 milisegundos
-
+ultimo_spaw = pygame.time.get_ticks()#calcular o último tempo em que o jogo começou a rodar
+intervalo = 1000# cria uma bomba a cada 1 segundo
 
 imagem_bombas = pygame.image.load("Piskel - Bomb.png")
-imagem_nave = pygame.image.load("Piskel - Nave.png")
-
+imagem_nave = pygame.image.load("Piskel - Nave.png").convert_alpha()
 
 tamanho_nave = 100
 imagem_nave_redimensionada = pygame.transform.scale(imagem_nave,(tamanho_nave,tamanho_nave))
 
-x = 790#posição horizontal da nave
-velocidade = 10
+#movimentos da nave
+mover_direita  = False
+mover_esquerda = False
 
+#criação de uma classe para passar os parâmetros de posição e velocidade da nave
+@dataclass
+class NaveLocalizacao:
+    x : int
+    y : int
+
+nave_localizacao = NaveLocalizacao(x=350, y=510)
+velocidade_nave = 8
    
 fim_jogo = False
 
 while not fim_jogo:
+
+    tela.fill(CINZA)
+
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             fim_jogo = True
 
-    tela.fill(BRANCO)
+        if evento.type == pygame.KEYDOWN:#se usuário precionar alguma seta...
+            if evento.key == pygame.K_RIGHT:#caso seja a seta direita, vá para direita
+                mover_direita = True
+            if evento.key == pygame.K_LEFT:#caso seja a seta esquerda, vá para esquerda
+                mover_esquerda = True
+        if evento.type == pygame.KEYUP:##se usuário não precionar nenhuma seta...
+            if evento.key == pygame.K_RIGHT:#não ocorre movimentação para direita
+                mover_direita = False
+            if evento.key == pygame.K_LEFT:#não ocorre movimentação para esquerda
+                mover_esquerda = False
 
-    agora = pygame.time.get_ticks()
+    if mover_direita:
+        nave_localizacao.x += velocidade_nave#soma localização da nave + velocidade para movimentar para direita
+    if mover_esquerda:
+        nave_localizacao.x -= velocidade_nave#subtrai localização da nave - velocidade para movimentar para esquerda
 
+    #limitação da nave dentro da tela
+    if nave_localizacao.x < 0:
+        nave_localizacao.x = 0
+    if nave_localizacao.x + imagem_nave_redimensionada.get_width() > altura:
+        nave_localizacao.x = altura - imagem_nave_redimensionada.get_width()
+
+    tela.blit(imagem_nave_redimensionada,(nave_localizacao.x, nave_localizacao.y))
+
+    agora = pygame.time.get_ticks()#calcular o tempo de jogo atual
+
+    #aqui faz o cálculo de quanto em quanto tempo a próxima bomba cairá da tela. OBS: cada bomba cai depois de 1 segundo
     if agora - ultimo_spaw >= intervalo:
-        posicao_x = random.randint(0,750)
-        posicao_y = -50
-        velocidade = random.randint(1,2)
-        tamanho_bomba = 70
+        posicao_x = random.randint(0,750)#posições aleatórias entre 0 e 750 na horizontal
+        posicao_y = -50#começar da posição -50 na vertical 
+        velocidade_bomba = random.randint(2,3)
+        tamanho_bomba = 90
         imagem_bomba_redimensionada  = pygame.transform.scale(imagem_bombas,(tamanho_bomba,tamanho_bomba))
-        bombas.append([posicao_x, posicao_y, velocidade, imagem_bomba_redimensionada])
+        bombas.append([posicao_x, posicao_y, velocidade_bomba, imagem_bomba_redimensionada])
 
         ultimo_spaw = agora#atualizar para o último tempo
 
-    for bomba in bombas[:]:
+    for bomba in bombas[:]:#criar várias copias de bombas de modo que cada uma seja única
         bomba[1] += bomba[2]#somar posição vertical + velocidade para fazer as bombas cairem
-        if bomba[1] > 600:
-            bombas.remove(bomba)
-        else:
-            tela.blit(bomba[3],(bomba[0],bomba[1]))
+        if bomba[1] > 600:#se a posisão da bomba na vertical for maior que o limite da tela...
+            bombas.remove(bomba)#ela é apagada
+        else:#senão
+            tela.blit(bomba[3],(bomba[0],bomba[1]))#será desenhada na tela
 
-
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT and x < 800-tamanho_nave:
-                x += velocidade
-            if event.key == pygame.K_LEFT and x > 0:
-                x -= velocidade
-        tela.blit(imagem_bomba_redimensionada)       
-
-    pygame.display.flip()
-    relogio.tick(60)
+    pygame.display.flip()#atualização da tela para apróximos frames
+    relogio.tick(60)# fps máximo suportado
 
 pygame.quit()
